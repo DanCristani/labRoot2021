@@ -7,12 +7,14 @@ namespace simulation {
 
 class ResonanceType : public ParticleType
 {
-  double fWidth;
-
  public:
   ResonanceType(const char* name, double mass, int charge, double width);
+  ResonanceType();
   double GetWidth() const;
   void Print() const;
+
+ private:
+  double fWidth = 0;
 };
 
 }  // namespace simulation

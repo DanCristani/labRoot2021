@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 
+#include "TCanvas.h"
 #include "TF1.h"
 #include "TFile.h"
 #include "TH1F.h"
@@ -21,6 +22,7 @@ int main()
 {
   try {
     // adding the needed particle types to the array
+    Particle::AddParticleType("null particle", 0., 0., 0.);
     Particle::AddParticleType("π+", 0.13957, 1, 0.);
     Particle::AddParticleType("π-", 0.13957, -1, 0.);
     Particle::AddParticleType("K+", 0.49367, 1, 0.);
@@ -38,7 +40,7 @@ int main()
     Double_t prob2 = 0;
 
     // histograms
-    TH1F* h[12] = {};
+    TH1F* h[12];
     h[0] = new TH1F("hParticle", "Generated particles", 9, -1, 8);
     h[1] = new TH1F("hPhi", "Azimuth angle", 360, -0.5, 7);
     h[2] = new TH1F("hTheta", "Polar angle", 180, -0.5, 4);
@@ -63,22 +65,22 @@ int main()
     TFile* file = new TFile("particle.root", "RECREATE");
 
     // generating events
-    for (int i = 0; i < 10E5, ++i) {
-      Particle particles[N] = {};
+    for (int i = 0; i < 10E5; ++i) {
+      Particle particles[N];
       int counter = 100;
 
-      for (int j = 0; j < 100, ++j) {
+      for (int j = 0; j < 100; ++j) {
         // generating angles and momentum
         Particle j_particle = particles[j];
-        phi->gRandom->TRandom::Uniform(0, 2 * TMath::Pi());
-        theta->gRandom->TRandom::Uniform(0, TMath::Pi());
-        momentum->gRandom->TRandom::Exp(1);
+        phi = gRandom->TRandom::Uniform(0, 2 * TMath::Pi());
+        theta = gRandom->TRandom::Uniform(0, TMath::Pi());
+        momentum = gRandom->TRandom::Exp(1);
         j_particle.SetP(momentum * sin(theta) * cos(phi),
                         momentum * sin(theta) * sin(phi),
                         momentum * cos(theta));
 
         // adding the particles in the defined proportions
-        prob->gRandom->TRandom::Rndm();
+        prob = gRandom->TRandom::Rndm();
         if (prob < 0.4) {
           j_particle.SetParticle("π+");
         } else if (prob >= 0.4 && prob < 0.8) {
@@ -106,8 +108,8 @@ int main()
         h[5]->Fill(j_particle.Energy());
 
         // decay of K*
-        prob2->gRandom->TRandom::Rndm();
-        if (j_particle.GetName("K*")) {
+        prob2 = gRandom->TRandom::Rndm();
+        if (strcmp(j_particle.GetName(), "K*") == 0) {
           if (prob2 < 0.5) {
             particles[counter].SetParticle("π+");
             particles[counter + 1].SetParticle("K-");
@@ -115,7 +117,7 @@ int main()
             particles[counter].SetParticle("π-");
             particles[counter + 1].SetParticle("K+");
           }
-          j_particle.Decay2body(particles[counter], particles[counter + 1]]);
+          j_particle.Decay2body(particles[counter], particles[counter + 1]);
           h[11]->Fill(particles[counter].InvariantMass(particles[counter + 1]));
           counter += 2;
         }  // if
@@ -143,8 +145,8 @@ int main()
           // first particle negative
           if (particles[l].GetCharge() == -1) {
             // filling opposite charge histogram
-            if (particles[k].GetChatge() == 1) {
-              h[7]->Fill(particle[l].InvariantMass(particles[k]));
+            if (particles[k].GetCharge() == 1) {
+              h[7]->Fill(particles[l].InvariantMass(particles[k]));
             } else if (particles[k].GetCharge() == -1) {
               // filling same charge histogram
               h[8]->Fill(particles[l].InvariantMass(particles[k]));
@@ -152,17 +154,17 @@ int main()
           }
 
           // filling pion/kaon histograms
-          if (particles[l].GetIndex() == 0) {    // π+
-            if (particles[k].GetIndex() == 3) {  // K-
+          if (particles[l].GetIndex() == 1) {    // π+
+            if (particles[k].GetIndex() == 4) {  // K-
               h[9]->Fill(particles[l].InvariantMass(particles[k]));
-            } else if (particles[k].GetIndex() == 2) {  // K+
+            } else if (particles[k].GetIndex() == 3) {  // K+
               h[10]->Fill(particles[l].InvariantMass(particles[k]));
             }
           }
-          if (particles[l].GetIndex() == 1) {    // π-
-            if (particles[k].GetIndex() == 2) {  // K+
-              h[9] > FIll(particles[l].InvariantMass(particles[k]));
-            } else if (particles[k].GetIndex() == 3) {  // K-
+          if (particles[l].GetIndex() == 2) {    // π-
+            if (particles[k].GetIndex() == 3) {  // K+
+              h[9]->Fill(particles[l].InvariantMass(particles[k]));
+            } else if (particles[k].GetIndex() == 4) {  // K-
               h[10]->Fill(particles[l].InvariantMass(particles[k]));
             }
           }
@@ -175,7 +177,7 @@ int main()
     file->Write();
 
     // creating a Canvas (this part will go in a separate file)
-    TCanvas* canvas = new TCanvas();
+    TCanvas* canvas = new TCanvas("canvas", "histograms", 200, 10, 600, 400);
     canvas->Divide(4, 3);
     h[0]->Draw("Histo");
     h[1]->Draw("Histo");

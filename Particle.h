@@ -17,6 +17,7 @@ class Particle
 
   // constructors
   Particle(const char* name, double Px = 0, double Py = 0, double Pz = 0);
+  Particle();
 
   // getters
   const char* GetName() const;
@@ -48,10 +49,10 @@ class Particle
   static int fNParticleType;
 
   // data members
-  int fIndex;
-  double fPx;
-  double fPy;
-  double fPz;
+  int fIndex = 0;
+  double fPx = 0.;
+  double fPy = 0.;
+  double fPz = 0.;
 
   // methods
   static int FindParticle(const char* name);

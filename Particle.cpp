@@ -46,6 +46,8 @@ Particle::Particle(const char* name, double Px, double Py, double Pz)
   fIndex = index;
 }
 
+Particle::Particle() = default;
+
 // getters
 const char* Particle::GetName() const
 {

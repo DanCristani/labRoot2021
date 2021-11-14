@@ -12,6 +12,8 @@ ResonanceType::ResonanceType(const char* name,
 {
 }
 
+ResonanceType::ResonanceType() = default;
+
 double ResonanceType::GetWidth() const
 {
   return fWidth;
