@@ -27,37 +27,50 @@ int main()
     Particle::AddParticleType("π-", 0.13957, -1, 0.);
     Particle::AddParticleType("K+", 0.49367, 1, 0.);
     Particle::AddParticleType("K-", 0.49367, -1, 0.);
-    Particle::AddParticleType("P+", 0.932827, 1, 0.);
-    Particle::AddParticleType("P-", 0.932827, -1, 0.);
+    Particle::AddParticleType("P+", 0.93827, 1, 0.);
+    Particle::AddParticleType("P-", 0.93827, -1, 0.);
     Particle::AddParticleType("K*", 0.89166, 0, 0.050);
 
     // variables needed in the for loops
     int const N = 120;
-    Double_t phi = 0;
-    Double_t theta = 0;
-    Double_t momentum = 0;
-    Double_t prob = 0;
-    Double_t prob2 = 0;
+    double phi = 0;
+    double theta = 0;
+    double momentum = 0;
 
     // histograms
-    TH1F* h[12];
-    h[0] = new TH1F("hParticle", "Generated particles", 9, -1, 8);
-    h[1] = new TH1F("hPhi", "Azimuth angle", 360, -0.5, 7);
-    h[2] = new TH1F("hTheta", "Polar angle", 180, -0.5, 4);
-    h[3] = new TH1F("hMomentum", "Momentum modulus", 10000, -0.5, 10);
-    h[4] = new TH1F("hTMomentum", "Transverse momentum", 10000, -0.5, 10);
-    h[5] = new TH1F("hEnergy", "Energy", 10000, -0.5, 10);
-    h[6] = new TH1F("hInvMass1", "Invariant mass", 10000, 0, 7);
-    h[7] = new TH1F("hInvMass2", "Opposite invariant mass", 10000, 0, 7);
-    h[8] = new TH1F("hInvMass3", "Same charghe invariant mass", 10000, 0, 7);
-    h[9] = new TH1F(
-        "hInvMass4", "Opposite pion and kaon invariant mass", 10000, 0, 7);
+    TH1F* h[14];
+    h[0] = new TH1F("hParticle", "Generated particles", 9, 0, 9);
+    h[1] = new TH1F("hPhi", "Azimuth angle (Phi)", 200, 0, 2 * TMath::Pi());
+    h[2] = new TH1F("hTheta", "Polar angle (Theta)", 200, 0, TMath::Pi());
+    h[3] = new TH1F("hMomentum", "Momentum modulus", 200, 0, 7);
+    h[4] = new TH1F("hTMomentum", "Transverse momentum", 200, 0, 7);
+    h[5] = new TH1F("hEnergy", "Energy", 200, 0, 7);
+    h[6] = new TH1F("hInvMass1", "Invariant masses", 300, 0, 5);
+    h[7] =
+        new TH1F("hInvMass2", "Invariant masses (opposite charges)", 300, 0, 2);
+    h[8] = new TH1F("hInvMass3", "Invariant masses (same charges)", 300, 0, 2);
+    h[9] = new TH1F("hInvMass4",
+                    "Invariant masses pion/kaon (opposite charges)",
+                    300,
+                    0,
+                    2);
     h[10] = new TH1F(
-        "hInvMass5", "Same charge pion and kaon invariant mass", 10000, 0, 7);
-    h[11] = new TH1F("hInvMass6", "Decay invariant mass", 10000, 0, 7);
+        "hInvMass5", "Invariant masses pion/kaon (same charges)", 300, 0, 2);
+    h[11] = new TH1F("hInvMass6", "Invariant masses decay", 300, 0, 2);
+    h[12] = new TH1F(
+        "hDiff45",
+        "Difference invariant masses pion/kaon (opposite-same charges)",
+        300,
+        0,
+        2);
+    h[13] = new TH1F("hDiff23",
+                     "Difference invariant masses (opposite-same charges)",
+                     300,
+                     0,
+                     2);
 
     // calling Sumw2 to correctly evaluate the errors
-    for (int i = 0; i < 12; ++i) {
+    for (int i = 0; i < 14; ++i) {
       h[i]->Sumw2();
     }
 
@@ -65,51 +78,50 @@ int main()
     TFile* file = new TFile("particle.root", "RECREATE");
 
     // generating events
-    for (int i = 0; i < 10E5; ++i) {
+    for (int i = 0; i < 1e5; ++i) {
       Particle particles[N];
       int counter = 100;
 
       for (int j = 0; j < 100; ++j) {
         // generating angles and momentum
-        Particle j_particle = particles[j];
-        phi = gRandom->TRandom::Uniform(0, 2 * TMath::Pi());
-        theta = gRandom->TRandom::Uniform(0, TMath::Pi());
-        momentum = gRandom->TRandom::Exp(1);
-        j_particle.SetP(momentum * sin(theta) * cos(phi),
-                        momentum * sin(theta) * sin(phi),
-                        momentum * cos(theta));
+        phi = gRandom->Uniform(0, 2 * TMath::Pi());
+        theta = gRandom->Uniform(0, TMath::Pi());
+        momentum = gRandom->Exp(1);
+        particles[j].SetP(momentum * sin(theta) * cos(phi),
+                          momentum * sin(theta) * sin(phi),
+                          momentum * cos(theta));
 
         // adding the particles in the defined proportions
-        prob = gRandom->TRandom::Rndm();
+        double prob = gRandom->Rndm();
         if (prob < 0.4) {
-          j_particle.SetParticle("π+");
+          particles[j].SetParticle("π+");
         } else if (prob >= 0.4 && prob < 0.8) {
-          j_particle.SetParticle("π-");
+          particles[j].SetParticle("π-");
         } else if (prob >= 0.8 && prob < 0.85) {
-          j_particle.SetParticle("K+");
+          particles[j].SetParticle("K+");
         } else if (prob >= 0.85 && prob < 0.9) {
-          j_particle.SetParticle("K-");
+          particles[j].SetParticle("K-");
         } else if (prob >= 0.9 && prob < 0.945) {
-          j_particle.SetParticle("P+");
+          particles[j].SetParticle("P+");
         } else if (prob >= 0.945 && prob < 0.99) {
-          j_particle.SetParticle("P-");
+          particles[j].SetParticle("P-");
         } else {
-          j_particle.SetParticle("K*");
+          particles[j].SetParticle("K*");
         }
 
         // filling histograms whithout derived particles
-        h[0]->Fill(j_particle.GetIndex());
+        h[0]->Fill(particles[j].GetIndex());
         h[1]->Fill(phi);
         h[2]->Fill(theta);
         h[3]->Fill(momentum);
-        double tMomentum = sqrt(j_particle.GetPx() * j_particle.GetPx() +
-                                j_particle.GetPy() * j_particle.GetPy());
+        double tMomentum = sqrt(particles[j].GetPx() * particles[j].GetPx() +
+                                particles[j].GetPy() * particles[j].GetPy());
         h[4]->Fill(tMomentum);
-        h[5]->Fill(j_particle.Energy());
+        h[5]->Fill(particles[j].Energy());
 
         // decay of K*
-        prob2 = gRandom->TRandom::Rndm();
-        if (strcmp(j_particle.GetName(), "K*") == 0) {
+        double prob2 = gRandom->Rndm();
+        if (particles[j].GetIndex() == 7) {
           if (prob2 < 0.5) {
             particles[counter].SetParticle("π+");
             particles[counter + 1].SetParticle("K-");
@@ -117,85 +129,74 @@ int main()
             particles[counter].SetParticle("π-");
             particles[counter + 1].SetParticle("K+");
           }
-          j_particle.Decay2body(particles[counter], particles[counter + 1]);
+          particles[j].Decay2body(particles[counter], particles[counter + 1]);
           h[11]->Fill(particles[counter].InvariantMass(particles[counter + 1]));
           counter += 2;
-        }  // if
-      }    // for j
+        }
 
-      // writing object which are living inside the for loop in a root file
-      file->Write();
+      }  // for j
 
       // filling invariant mass histograms
       for (int k = 0; k < counter; ++k) {
         for (int l = k + 1; l < counter; ++l) {
-          h[6]->Fill(particles[l].InvariantMass(particles[k]));
+          if (particles[k].GetIndex() != 7 &&
+              particles[l].GetIndex() != 7 &&  // K*
+              particles[k].GetIndex() != 0 &&
+              particles[l].GetIndex() != 0) {  // null particle
+            h[6]->Fill(particles[k].InvariantMass(particles[l]));
 
-          // first particle positive
-          if (particles[l].GetCharge() == 1) {
-            // filling opposite charge histogram
-            if (particles[k].GetCharge() == -1) {
-              h[7]->Fill(particles[l].InvariantMass(particles[k]));
-            } else if (particles[k].GetCharge() == 1) {
-              // filling same charge histogram
-              h[8]->Fill(particles[l].InvariantMass(particles[k]));
+            // first particle positive
+            if (particles[l].GetCharge() == 1) {
+              // filling opposite charges histogram
+              if (particles[k].GetCharge() == -1) {
+                h[7]->Fill(particles[k].InvariantMass(particles[l]));
+              } else {
+                // filling same charges histogram
+                h[8]->Fill(particles[k].InvariantMass(particles[l]));
+              }
+            } else {  // first particle negative
+              // filling opposite charges histogram
+              if (particles[k].GetCharge() == 1) {
+                h[7]->Fill(particles[k].InvariantMass(particles[l]));
+              } else {
+                // filling same charges histogram
+                h[8]->Fill(particles[k].InvariantMass(particles[l]));
+              }
+            }
+
+            // filling pion/kaon histograms
+            if (particles[k].GetIndex() == 1) {    // π+
+              if (particles[l].GetIndex() == 4) {  // K-
+                h[9]->Fill(particles[k].InvariantMass(particles[l]));
+              } else if (particles[l].GetIndex() == 3) {  // K+
+                h[10]->Fill(particles[k].InvariantMass(particles[l]));
+              }
+            }
+
+            if (particles[k].GetIndex() == 2) {    // π-
+              if (particles[l].GetIndex() == 3) {  // K+
+                h[9]->Fill(particles[k].InvariantMass(particles[l]));
+              } else if (particles[l].GetIndex() == 4) {  // K-
+                h[10]->Fill(particles[k].InvariantMass(particles[l]));
+              }
             }
           }
 
-          // first particle negative
-          if (particles[l].GetCharge() == -1) {
-            // filling opposite charge histogram
-            if (particles[k].GetCharge() == 1) {
-              h[7]->Fill(particles[l].InvariantMass(particles[k]));
-            } else if (particles[k].GetCharge() == -1) {
-              // filling same charge histogram
-              h[8]->Fill(particles[l].InvariantMass(particles[k]));
-            }
-          }
-
-          // filling pion/kaon histograms
-          if (particles[l].GetIndex() == 1) {    // π+
-            if (particles[k].GetIndex() == 4) {  // K-
-              h[9]->Fill(particles[l].InvariantMass(particles[k]));
-            } else if (particles[k].GetIndex() == 3) {  // K+
-              h[10]->Fill(particles[l].InvariantMass(particles[k]));
-            }
-          }
-          if (particles[l].GetIndex() == 2) {    // π-
-            if (particles[k].GetIndex() == 3) {  // K+
-              h[9]->Fill(particles[l].InvariantMass(particles[k]));
-            } else if (particles[k].GetIndex() == 4) {  // K-
-              h[10]->Fill(particles[l].InvariantMass(particles[k]));
-            }
-          }
         }  // for l
       }    // for k
+    }      // for i
 
-    }  // for i
+    // filling the difference histograms
+    h[12]->Add(h[9], h[10], 1, -1);
+    h[13]->Add(h[7], h[8], 1, -1);
 
     // writing the filled histograms on a root file
-    file->Write();
-
-    // creating a Canvas (this part will go in a separate file)
-    TCanvas* canvas = new TCanvas("canvas", "histograms", 200, 10, 600, 400);
-    canvas->Divide(4, 3);
-    h[0]->Draw("Histo");
-    h[1]->Draw("Histo");
-    h[2]->Draw("Histo");
-    h[3]->Draw("Histo");
-    h[4]->Draw("Histo");
-    h[5]->Draw("Histo");
-    h[6]->Draw("Histo");
-    h[7]->Draw("Histo");
-    h[8]->Draw("Histo");
-    h[9]->Draw("Histo");
-    h[10]->Draw("Histo");
-    h[11]->Draw("Histo");
-
+    for (int i = 0; i < 14; ++i) {
+      h[i]->Write();
+    }
   } catch (std::runtime_error const& e) {
     std::cerr << e.what() << '\n';
   } catch (...) {
-    std::cerr << "Unknown excepion caught" << '\n';
+    std::cerr << "Unknown exception caught" << '\n';
   }
-  return 0;
 }

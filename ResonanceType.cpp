@@ -4,20 +4,12 @@
 
 namespace simulation {
 
-ResonanceType::ResonanceType(const char* name,
-                             double mass,
-                             int charge,
-                             double width)
-    : ParticleType(name, mass, charge), fWidth(width)
-{
-}
+ResonanceType::ResonanceType(const char* name, double mass, int charge, double width)
+    : ParticleType(name, mass, charge), fWidth(width) {}
 
 ResonanceType::ResonanceType() = default;
 
-double ResonanceType::GetWidth() const
-{
-  return fWidth;
-}
+double ResonanceType::GetWidth() const { return fWidth; }
 
 void ResonanceType::Print() const
 {

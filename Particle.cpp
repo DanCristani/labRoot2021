@@ -93,12 +93,12 @@ double Particle::Energy() const
 
 double Particle::InvariantMass(Particle& other) const
 {
-  double P1 = sqrt(fPx * fPx + fPy * fPy + fPz * fPz);
-  double P2 =
-      sqrt(other.GetPx() * other.GetPx() + other.GetPy() * other.GetPy() +
-           other.GetPz() * other.GetPz());
+  double Px = fPx + other.GetPx();
+  double Py = fPy + other.GetPy();
+  double Pz = fPz + other.GetPz();
+  double P_squared = Px * Px + Py * Py + Pz * Pz;
   return sqrt((Energy() + other.Energy()) * (Energy() + other.Energy()) -
-              (P1 + P2) * (P1 + P2));
+              P_squared);
 }
 
 // setters
@@ -170,7 +170,7 @@ int Particle::Decay2body(Particle& dau1, Particle& dau2) const
     float x2;
     float w;
     float y1;
-    // float y2;
+    float y2;
 
     double invnum = 1. / RAND_MAX;
     do {
@@ -181,7 +181,7 @@ int Particle::Decay2body(Particle& dau1, Particle& dau2) const
 
     w = sqrt((-2.0 * log(w)) / w);
     y1 = x1 * w;
-    // y2 = x2 * w;
+    y2 = x2 * w;
 
     massMot += fParticleType[fIndex]->GetWidth() * y1;
   }
