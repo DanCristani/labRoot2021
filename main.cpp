@@ -117,22 +117,6 @@ int main()
                           momentum * sin(theta) * sin(phi),
                           momentum * cos(theta));
 
-        /*if (prob < 0.4) {
-          particles[j].SetParticle("π+");
-        } else if (prob >= 0.4 && prob < 0.8) {
-          particles[j].SetParticle("π-");
-        } else if (prob >= 0.8 && prob < 0.85) {
-          particles[j].SetParticle("K+");
-        } else if (prob >= 0.85 && prob < 0.9) {
-          particles[j].SetParticle("K-");
-        } else if (prob >= 0.9 && prob < 0.945) {
-          particles[j].SetParticle("P+");
-        } else if (prob >= 0.945 && prob < 0.99) {
-          particles[j].SetParticle("P-");
-        } else {
-          particles[j].SetParticle("K*");
-        }*/
-
         // filling histograms whithout derived particles
         h[0]->Fill(particles[j].GetIndex());
         h[1]->Fill(phi);
