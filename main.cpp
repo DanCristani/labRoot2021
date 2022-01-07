@@ -18,6 +18,27 @@ R__LOAD_LIBRARY(Particle_cpp.so);
 
 using namespace simulation;
 
+Particle GenerateParticle(double probability)
+{
+  Particle p;
+  if (probability < 0.4) {
+    p.SetParticle("π+");
+  } else if (probability >= 0.4 && probability < 0.8) {
+    p.SetParticle("π-");
+  } else if (probability >= 0.8 && probability < 0.85) {
+    p.SetParticle("K+");
+  } else if (probability >= 0.85 && probability < 0.9) {
+    p.SetParticle("K-");
+  } else if (probability >= 0.9 && probability < 0.945) {
+    p.SetParticle("P+");
+  } else if (probability >= 0.945 && probability < 0.99) {
+    p.SetParticle("P-");
+  } else {
+    p.SetParticle("K*");
+  }
+  return p;
+}
+
 int main()
 {
   try {
@@ -77,6 +98,8 @@ int main()
     // creating a TFile
     TFile* file = new TFile("particle.root", "RECREATE");
 
+    gRandom->SetSeed(0);
+
     // generating events
     for (int i = 0; i < 1e5; ++i) {
       Particle particles[N];
@@ -87,13 +110,14 @@ int main()
         phi = gRandom->Uniform(0, 2 * TMath::Pi());
         theta = gRandom->Uniform(0, TMath::Pi());
         momentum = gRandom->Exp(1);
+        // adding the particles in the defined proportions
+        double prob = gRandom->Rndm();
+        particles[j] = GenerateParticle(prob);
         particles[j].SetP(momentum * sin(theta) * cos(phi),
                           momentum * sin(theta) * sin(phi),
                           momentum * cos(theta));
 
-        // adding the particles in the defined proportions
-        double prob = gRandom->Rndm();
-        if (prob < 0.4) {
+        /*if (prob < 0.4) {
           particles[j].SetParticle("π+");
         } else if (prob >= 0.4 && prob < 0.8) {
           particles[j].SetParticle("π-");
@@ -107,7 +131,7 @@ int main()
           particles[j].SetParticle("P-");
         } else {
           particles[j].SetParticle("K*");
-        }
+        }*/
 
         // filling histograms whithout derived particles
         h[0]->Fill(particles[j].GetIndex());
